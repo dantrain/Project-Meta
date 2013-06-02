@@ -1,0 +1,22 @@
+{
+	"name": "project-meta",
+	"description": "a web app for finding new music worth listening to",
+	"version": "0.0.1",
+	"author": "Dan Train",
+	"private": true,
+	"dependencies": {
+		"connect": "2.x",
+		"express": "3.x",
+        "mongodb": "1.2.0",
+        "request": "2.16.x",
+        "jquery": "1.7.x"
+	},
+	"devDependencies": {
+		"should": "1.2.x",
+		"phantom": "0.4.x"
+	},
+	"engines": {
+        "node": "0.8.4",
+        "npm": "1.1.49"
+    }
+}

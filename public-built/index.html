@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Project Meta</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="description" content="A web app for finding new music worth listening to, by filtering data from Metacritic.com.">
+		<meta name="author" content="Dan Train">
+
+		<link href="styles/main.css" rel="stylesheet">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="styles/images/touch-icon-iphone-retina.png">
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="styles/images/touch-icon-ipad-retina.png">
+
+		<script src="scripts/lib/modernizr-latest.js"></script>
+		<script async data-main="scripts/main" src="scripts/lib/require-jquery.js"></script>
+	</head>
+	<body>
+		<div class="header-container">
+			<header class="l-full-width">
+				<ul class="header-links mobile-links">
+					<li><a href="" id="reveal-filters" class="filters-link" title="Filters" data-bind="click: reveal"></a></li>
+				</ul>
+				<h1><a href="">Project Meta</a></h1>
+				<ul class="header-links modal-links">
+					<li><a href="" id="info" class="info-link" title="About" data-bind="click: swing"></a></li>
+				</ul>
+			</header>
+		</div>
+
+		<div class="l-full-width">
+
+			<div class="l-filter-spacer">
+				<div id="filters" class="filters is-invisible is-invisible-mobile">
+					<button class="close-button" data-bind="click: closeModal">×</button>
+					<h2>Metascore</h2>
+					<div class="score-slider-container">
+						<div class="bubble-container">
+							<div id="score-min-bubble-inner" class="bubble-inner" data-bind="text: scorerange()[0]"></div>
+							<div id="score-min-bubble-arrow" class="bubble-arrow bubble-arrow-down"></div>
+						</div>
+
+						<div id="score-slider" class="slider" data-bind="rangeslider: scorerange, slideroptions: { min: 0, max: 100 }">
+						</div>
+
+						<div class="bubble-container">
+							<div id="score-max-bubble-inner" class="bubble-inner bubble-below" data-bind="text: scorerange()[1]"></div>
+							<div id="score-max-bubble-arrow" class="bubble-arrow bubble-arrow-up"></div>
+						</div>
+					</div>
+
+					<h2>Critic Reviews</h2>
+					<div class="critic-slider-container">
+						<div class="bubble-container">
+							<div id="critic-bubble-inner" class="bubble-inner" data-bind="text: criticreviews"></div>
+							<div id="critic-bubble-arrow" class="bubble-arrow bubble-arrow-down"></div>
+						</div>
+
+						<div id="critic-slider" class="slider" data-bind="maxslider: criticreviews, slideroptions: { min: 0 }, slidermaxval: maxcriticreviews">
+						</div>
+					</div>
+
+					<h2>Genres</h2>
+					<div class="genre-select-container">
+						<select multiple data-bind="options: genres, selectedOptions: genrefilter, select2: { width: 'off', placeholder: 'Select a genre' }"></select>
+					</div>
+					<div class="genre-radios radios-container clearfix">
+						<div class="radio-field" data-value="include" data-bind="radioButton: genreswitch">
+							<span class="radio-button"></span><label>Include</label>
+						</div>
+						<div class="radio-field" data-value="exclude" data-bind="radioButton: genreswitch">
+							<span class="radio-button"></span><label>Exclude</label>
+						</div>
+					</div>
+
+					<h2>Sort</h2>
+					<div class="sort-radios radios-container clearfix">
+						<div class="radio-field" data-value="date" data-bind="radioButton: sortby">
+							<span class="radio-button"></span><label>Release Date</label>
+						</div>
+						<div class="radio-field" data-value="score" data-bind="radioButton: sortby">
+							<span class="radio-button"></span><label>Metascore</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="l-content-width">
+				<div id="loading-container" class="message-container loading-container">
+					<p>Loading...</p>
+				</div>
+				<div id="no-results-container" class="message-container no-results-container">
+					<p>No results</p>
+				</div>
+				<ul id="items" class="items is-invisible" data-bind="template: { name: 'albumTemplate', foreach: albums }, isotopeBinding: albums">
+				</ul>
+			</div>
+
+	<script type="text/html" id="albumTemplate">
+		<li class="item" data-bind="attr: { 'data-score': score, 'data-critic-number': critic_number, 'data-genres': genres, 'data-release-date': release_date }">
+			<a href="" class="item-front" data-bind="click: $parent.flip">
+				<h3 data-bind="text: artist"></h3>
+				<div class="image-box">
+					<img data-bind="attr : {src: image_url}" height="98" width="98" alt="">
+				</div>
+				<div class="score-box score-box-front" data-bind="text: score, css: { 'score-good': score > 60, 'score-bad': score < 40 }"></div>
+				<h3 data-bind="text: title"></h3>
+			</a>
+			
+			<div class="item-back panel">
+				<button class="close-button" data-bind="click: $parent.closeModal">×</button>
+				<div class="panel-header">
+					<a target="_blank" data-bind="attr: { href: 'http://en.wikipedia.org/w/index.php?search=%22' + artist.replace(/\s+/g, '+') + '%22+intitle%3A%22' + title.replace(/\s+/g, '+') + '%22+-song' }"><h2 data-bind="text: title"></h2></a>
+					<span class="title-spacer">by</span>
+					<a target="_blank" data-bind="attr: { href: 'http://en.wikipedia.org/w/index.php?search=%22' + artist.replace(/\s+/g, '+')+ '%22' }"><h2 data-bind="text: artist" class="artist-name"></h2></a>
+				</div>
+
+				<div class="box-column">
+					<a target="_blank" data-bind="attr: { href: 'https://www.google.co.uk/search?as_st=y&tbm=isch&as_q=' + artist.replace(/\s+/g, '+') + '+' + title.replace(/\s+/g, '+') + '&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs=isz:lt,islt:svga,iar:s&biw=1302&bih=937&sei=ej1fUcLfPKqX1AWt8YDABQ' }">
+						<div class="image-box">
+							<img data-bind="attr : {src: image_url}" height="98" width="98" alt="">
+						</div>
+					</a>
+					
+					<a target="_blank" data-bind="attr: { href: url }">
+						<div class="score-box score-box-back" data-bind="css: { 'score-good': score > 60, 'score-bad': score < 40 }">
+							<div class="score-value" data-bind="text: score"></div>
+							<div class="score-total">out of 100</div>
+						</div>
+					</a>
+				</div>
+
+				<div class="info-column">
+					<h3>Summary:</h3>
+					<p data-bind="text: summary.length > 290 ? summary.substring(0, 290).substring(0, Math.min(290, summary.lastIndexOf(' '))) + ' (...)' : summary"></p>
+
+					<h3>Reviews:</h3>
+					<p><a target="_blank" data-bind="text: critic_number + ' critics on Metacritic', attr: { href: url + '/critic-reviews' }"></a></p>
+
+					<h3>Release Date:</h3>
+					<p data-bind="text: $.datepicker.formatDate('d MM, yy', new Date(release_date))"></p>
+
+					<h3>Record Label:</h3>
+					<p data-bind="text: record_label"></p>
+
+					<h3 data-bind="visible: genres[0] !== ''">Genre(s):</h3>
+					<p data-bind="text: genres.join(', ')"></p>
+
+					<h3>Search on:</h3>
+					<ul class="icon-list" data-bind="foreach: $parent.services">
+						<li><i class="icon" data-bind="css: 'icon-' + name.replace(/(\s+|\.)/g, '-').toLowerCase()"></i><a target="_blank" data-bind="text: name, attr: { href: string.replace(/{artist}/g, $parent.artist.replace(/\s+/g, separator)).replace(/{title}/g, $parent.title.replace(/\s+/g, separator)) }"></a></li>
+					</ul>
+				</div>
+			</div>
+		</li>
+	</script>
+
+		</div>
+		<div id="overlay" class="overlay" data-bind="click: closeModal"></div>
+		<div id="modal-container" class="modal-container">
+			<div id="info-modal" class="modal panel">
+				<button class="close-button" data-bind="click: closeModal">×</button>
+				<div class="panel-header">
+					<h2>About</h2>
+				</div>
+				<a href="https://twitter.com/danhappysalad" class="mugshot" target="_blank">
+					<img src="styles/images/dantrain.jpg" alt="Dan Train">
+				</a>
+				<p>My name is <a href="https://twitter.com/danhappysalad" target="_blank">Dan Train</a>, I'm a software developer from Cambridge, UK. As a music lover I find it hard to keep track of new releases let alone whether they are worth listening to, so I applied my engineering brain to the problem!</p>
+				<p>This web app presents data from <a href="http://www.metacritic.com/" target="_blank">Metacritic.com</a> in an elegant manner so you can find the latest good vibrations. I built it as a single page application in order to deepen my knowledge of JavaScript frameworks and CSS3 animation techniques.</p>
+				<p>I also host a gaming podcast over at <a href="http://www.happysalad.net/" target="_blank">Happysalad.net</a>, check it out!</p>
+				<h3>Technologies:</h3>
+				<ul class="icon-list">
+					<li><i class="icon icon-knockout"></i><a href="http://knockoutjs.com/" target="_blank">Knockout.js</a></li>
+					<li><i class="icon icon-isotope"></i><a href="http://isotope.metafizzy.co/" target="_blank">Isotope</a></li>
+					<li><i class="icon icon-select2"></i><a href="http://ivaynberg.github.io/select2/" target="_blank">Select2</a></li>
+					<li><i class="icon icon-jquery"></i><a href="http://jquery.com/" target="_blank">jQuery</a></li>
+					<li><i class="icon icon-jqueryui"></i><a href="http://jqueryui.com/" target="_blank">jQuery UI</a></li>
+					<li><i class="icon icon-require"></i><a href="http://requirejs.org/" target="_blank">RequireJS</a></li>
+					<li><i class="icon icon-modernizr"></i><a href="http://modernizr.com/" target="_blank">Modernizr</a></li>
+					<li><i class="icon icon-html5"></i><a href="http://www.w3.org/html/wg/drafts/html/master/" target="_blank">HTML5</a></li>
+					<li><i class="icon icon-css3"></i><a href="http://www.w3.org/Style/CSS/" target="_blank">CSS3</a></li>
+					<li><i class="icon icon-node"></i><a href="http://nodejs.org/" target="_blank">Node.js</a></li>
+					<li><i class="icon icon-mongodb"></i><a href="http://www.mongodb.org/" target="_blank">MongoDB</a></li>
+					<li><i class="icon icon-heroku"></i><a href="https://www.heroku.com/" target="_blank">Heroku</a></li>
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>
